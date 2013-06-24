@@ -5,7 +5,8 @@ import java.util.Map;
 
 /**
  * A data structure that holds the fields that added to the class.
- * khotyn 13-6-24 下午7:48
+ * 
+ * @author khotyn 2013-06-24 20:22:27
  */
 public class FieldsHolder {
     private Map<String, Object> fields = new HashMap<String, Object>();

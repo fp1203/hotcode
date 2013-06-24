@@ -1,8 +1,9 @@
 package com.khotyn.hotcode.constants;
 
 /**
- * Constants of hotcode are defined here.
- * khotyn 13-6-24 下午7:35
+ * Constants of HotCode are defined here.
+ * 
+ * @author khotyn 2013-06-24 20:22:14
  */
 public class HotCodeConstant {
     /**
