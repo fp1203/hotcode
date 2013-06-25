@@ -19,6 +19,8 @@ import com.khotyn.hotcode.asm.adapters.ClinitClassAdapter;
  */
 public class AgentMain {
 
+    private static final String[] SKIP_PKGS = { "java", "javax", "sun", "com/apple/java" };
+
     public static void premain(String agentArgs, Instrumentation inst) {
         ClassRedifiner.setInstrumentation(inst);
         inst.addTransformer(new ClassFileTransformer() {
@@ -27,12 +29,17 @@ public class AgentMain {
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                                     ProtectionDomain protectionDomain, byte[] classfileBuffer)
                                                                                               throws IllegalClassFormatException {
+                for (String SKIP_PKG : SKIP_PKGS) {
+                    if (className.startsWith(SKIP_PKG)) {
+                        return classfileBuffer;
+                    }
+                }
 
                 ClassReader cr = new ClassReader(classfileBuffer);
                 ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
                 ClassVisitor cv = new AddFieldsHolderAdapter(cw);
                 cv = new ClinitClassAdapter(cv);
-                cr.accept(cv, ClassReader.SKIP_FRAMES + ClassReader.SKIP_DEBUG);
+                cr.accept(cv, 0);
                 byte[] classRedefined = cw.toByteArray();
                 ClassDumper.dump(className, classRedefined);
                 return classRedefined;
