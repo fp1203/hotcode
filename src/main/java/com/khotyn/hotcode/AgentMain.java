@@ -9,7 +9,9 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
+import com.khotyn.hotcode.asm.adapters.AddClassReloaderAdapter;
 import com.khotyn.hotcode.asm.adapters.AddFieldsHolderAdapter;
+import com.khotyn.hotcode.asm.adapters.BeforeMethodCheckAdapter;
 import com.khotyn.hotcode.asm.adapters.ClinitClassAdapter;
 
 /**
@@ -38,7 +40,9 @@ public class AgentMain {
                 ClassReader cr = new ClassReader(classfileBuffer);
                 ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
                 ClassVisitor cv = new AddFieldsHolderAdapter(cw);
+                cv = new AddClassReloaderAdapter(cv);
                 cv = new ClinitClassAdapter(cv);
+                cv = new BeforeMethodCheckAdapter(cv);
                 cr.accept(cv, 0);
                 byte[] classRedefined = cw.toByteArray();
                 ClassDumper.dump(className, classRedefined);
