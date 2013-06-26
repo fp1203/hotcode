@@ -1,8 +1,5 @@
 package com.khotyn.hotcode;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Class reloader
  * 
@@ -10,27 +7,29 @@ import java.util.Map;
  */
 public class ClassReloader {
 
+    private Long classReloaderManagerIndex;
+    private Long               classIndex;
+    private Class              klass;
     /**
-     * Class to be reload.
+     * The class file.
      */
-    private Class<?>                          klass;
-    private Map<Class<?>, VersionedClassFile> monitoredClassFile = new HashMap<Class<?>, VersionedClassFile>();
+    private VersionedClassFile versionedClassFile;
 
-    public ClassReloader(String className){
-        try {
-            klass = Thread.currentThread().getContextClassLoader().loadClass(className);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+    public ClassReloader(Long classReloaderManagerIndex, Long classIndex, Class klass, VersionedClassFile versionedClassFile){
+        this.classReloaderManagerIndex = classReloaderManagerIndex;
+        this.classIndex = classIndex;
+        this.klass = klass;
+        this.versionedClassFile = versionedClassFile;
     }
 
     public boolean checkAndReload() {
-        VersionedClassFile classFile = monitoredClassFile.get(klass);
-
-        return classFile != null && classFile.changed() && reload();
+        return versionedClassFile.changed() && reload();
     }
 
     private boolean reload() {
-        return false;
+        byte[] transformedClassFile = ClassTransformer.transform(classReloaderManagerIndex, classIndex,
+                                                                 versionedClassFile.reloadAndGetClassFile());
+        ClassRedefiner.redefine(klass, transformedClassFile);
+        return true;
     }
 }

@@ -12,11 +12,9 @@ public abstract class VersionedClassFile {
     /**
      * The version of the class file.
      */
-    private AtomicLong version;
+    protected AtomicLong version = new AtomicLong(0);
 
-    public VersionedClassFile(long initialVersion){
-        version = new AtomicLong(initialVersion);
-    }
+    protected byte[]     classFile;
 
     /**
      * @param version
@@ -32,5 +30,29 @@ public abstract class VersionedClassFile {
         this.version.incrementAndGet();
     }
 
+    public long getVersion() {
+        return version.longValue();
+    }
+
+    public byte[] getClassFile() {
+        return classFile;
+    }
+
+    public void setClassFile(byte[] classFile) {
+        this.classFile = classFile;
+    }
+
+    /**
+     * Check if class file is changed.
+     * 
+     * @return
+     */
     public abstract boolean changed();
+
+    /**
+     * Reload class file.
+     * 
+     * @return
+     */
+    public abstract byte[] reloadAndGetClassFile();
 }

@@ -23,7 +23,8 @@ public class CodeFragment {
      * 
      * @param mv
      */
-    public static void clinitFieldInit(MethodVisitor mv, int access, String ownerClassInternalName) {
+    public static void clinitFieldInit(MethodVisitor mv, int access, String ownerClassInternalName,
+                                       Long classReloaderManagerIndex, Long classReloaderIndex) {
         mv.visitTypeInsn(Opcodes.NEW, Type.getInternalName(FieldsHolder.class));
         mv.visitInsn(Opcodes.DUP);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(FieldsHolder.class), "<init>",
@@ -31,11 +32,12 @@ public class CodeFragment {
         mv.visitFieldInsn(Opcodes.PUTSTATIC, ownerClassInternalName, HotCodeConstant.HOTCODE_STATIC_FIELDS,
                           Type.getDescriptor(FieldsHolder.class));
 
-        mv.visitTypeInsn(Opcodes.NEW, Type.getInternalName(ClassReloader.class));
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn(ownerClassInternalName.replace('/', '.'));
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(ClassReloader.class), "<init>",
-                           Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(String.class)));
+        mv.visitLdcInsn(classReloaderManagerIndex);
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(HotCode.class), "getClassReloaderManager",
+                           Type.getMethodDescriptor(Type.getType(ClassReloaderManager.class), Type.LONG_TYPE));
+        mv.visitLdcInsn(classReloaderIndex);
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(ClassReloaderManager.class), "getClassReloader",
+                           Type.getMethodDescriptor(Type.getType(ClassReloader.class), Type.LONG_TYPE));
         mv.visitFieldInsn(Opcodes.PUTSTATIC, ownerClassInternalName, HotCodeConstant.HOTCODE_CLASS_RELOADER_FIELDS,
                           Type.getDescriptor(ClassReloader.class));
 

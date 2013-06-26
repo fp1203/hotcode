@@ -21,9 +21,13 @@ public class ClinitClassAdapter extends ClassVisitor {
     private HotCodeMethod clinitMethod;
     private String        classInternalName;
     private int           classAccess;
+    private Long          classReloaderManagerIndex;
+    private Long          classReloaderIndex;
 
-    public ClinitClassAdapter(ClassVisitor cv){
+    public ClinitClassAdapter(ClassVisitor cv, Long classReloaderManagerIndex, Long classReloaderIndex){
         super(Opcodes.ASM4, cv);
+        this.classReloaderManagerIndex = classReloaderManagerIndex;
+        this.classReloaderIndex = classReloaderIndex;
     }
 
     @Override
@@ -43,7 +47,8 @@ public class ClinitClassAdapter extends ClassVisitor {
 
                 @Override
                 public void visitCode() {
-                    CodeFragment.clinitFieldInit(mv, classAccess, classInternalName);
+                    CodeFragment.clinitFieldInit(mv, classAccess, classInternalName, classReloaderManagerIndex,
+                                                 classReloaderIndex);
                     super.visitCode();
                 }
             };
@@ -68,7 +73,8 @@ public class ClinitClassAdapter extends ClassVisitor {
                                               HotCodeConstant.HOTCODE_CLINIT_METHOD_NAME,
                                               Type.getMethodDescriptor(Type.VOID_TYPE), null, null);
             mv.visitCode();
-            CodeFragment.clinitFieldInit(mv, classAccess, classInternalName);
+            CodeFragment.clinitFieldInit(mv, classAccess, classInternalName, classReloaderManagerIndex,
+                                         classReloaderIndex);
             mv.visitInsn(Opcodes.RETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();
