@@ -7,7 +7,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * A utility class to dump transformed class to file system.
+ * A utility class to dump transformed class to file java.
  * 
  * @author khotyn.huangt 13-6-24 PM8:41
  */

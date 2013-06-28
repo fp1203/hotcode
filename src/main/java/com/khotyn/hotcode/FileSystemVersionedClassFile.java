@@ -11,7 +11,7 @@ import org.apache.commons.io.FileUtils;
 public class FileSystemVersionedClassFile extends VersionedClassFile {
 
     /**
-     * The class file in the file system.
+     * The class file in the file java.
      */
     private File file;
 

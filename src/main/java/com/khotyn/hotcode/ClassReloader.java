@@ -1,5 +1,7 @@
 package com.khotyn.hotcode;
 
+import com.khotyn.hotcode.structure.HotCodeClass;
+
 /**
  * Class reloader
  * 
@@ -7,29 +9,38 @@ package com.khotyn.hotcode;
  */
 public class ClassReloader {
 
-    private Long classReloaderManagerIndex;
+    private Long               classReloaderManagerIndex;
     private Long               classIndex;
-    private Class              klass;
-    /**
-     * The class file.
-     */
+    private HotCodeClass       originClass;
     private VersionedClassFile versionedClassFile;
+    private ClassLoader        classLoader;
 
-    public ClassReloader(Long classReloaderManagerIndex, Long classIndex, Class klass, VersionedClassFile versionedClassFile){
+    public ClassReloader(Long classReloaderManagerIndex, Long classIndex, VersionedClassFile versionedClassFile,
+                         HotCodeClass originClass, ClassLoader classLoader){
         this.classReloaderManagerIndex = classReloaderManagerIndex;
         this.classIndex = classIndex;
-        this.klass = klass;
         this.versionedClassFile = versionedClassFile;
+        this.originClass = originClass;
+        this.classLoader = classLoader;
     }
 
     public boolean checkAndReload() {
         return versionedClassFile.changed() && reload();
     }
 
+    public HotCodeClass getOriginClass() {
+        return originClass;
+    }
+
     private boolean reload() {
         byte[] transformedClassFile = ClassTransformer.transform(classReloaderManagerIndex, classIndex,
                                                                  versionedClassFile.reloadAndGetClassFile());
-        ClassRedefiner.redefine(klass, transformedClassFile);
-        return true;
+        try {
+            ClassRedefiner.redefine(classLoader.loadClass(originClass.getClassName()), transformedClassFile);
+            return true;
+        } catch (ClassNotFoundException e) {
+            // TODO
+            return false;
+        }
     }
 }

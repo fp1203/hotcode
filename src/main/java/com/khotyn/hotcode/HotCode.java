@@ -29,4 +29,12 @@ public class HotCode {
         classReloaderManagerMap.put(index, classReloaderManager);
         return index;
     }
+
+    public static void registerClassLoader(ClassLoader classLoader) {
+        if (classLoaderIndexMap.get(classLoader) != null) {
+            return;
+        }
+
+        putClassReloaderManager(classLoader, new ClassReloaderManager(classLoader));
+    }
 }

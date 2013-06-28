@@ -1,20 +1,19 @@
 package com.khotyn.hotcode;
 
-import java.io.File;
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
-import java.security.ProtectionDomain;
+import java.lang.instrument.UnmodifiableClassException;
 
+import org.apache.commons.io.IOUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Type;
 
-import com.khotyn.hotcode.asm.adapters.AddClassReloaderAdapter;
-import com.khotyn.hotcode.asm.adapters.AddFieldsHolderAdapter;
-import com.khotyn.hotcode.asm.adapters.BeforeMethodCheckAdapter;
-import com.khotyn.hotcode.asm.adapters.ClinitClassAdapter;
+import com.khotyn.hotcode.java.lang.ClassLoaderAdapter;
 
 /**
  * The entry of the HotCode agent.
@@ -23,57 +22,29 @@ import com.khotyn.hotcode.asm.adapters.ClinitClassAdapter;
  */
 public class AgentMain {
 
-    private static final String[] SKIP_PKGS = { "java", "javax", "sun", "com/apple/java" };
-
     public static void premain(String agentArgs, Instrumentation inst) {
         ClassRedefiner.setInstrumentation(inst);
-        inst.addTransformer(new ClassFileTransformer() {
 
-            @Override
-            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                                    ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                                                                                              throws IllegalClassFormatException {
-                for (String SKIP_PKG : SKIP_PKGS) {
-                    if (className.startsWith(SKIP_PKG)) {
-                        return classfileBuffer;
-                    }
-                }
+        InputStream is = ClassLoader.getSystemResourceAsStream(Type.getInternalName(ClassLoader.class) + ".class");
 
-                Long classReloaderManagerIndex = HotCode.getIndex(loader);
-
-                if (classReloaderManagerIndex == null) {
-                    classReloaderManagerIndex = HotCode.putClassReloaderManager(loader,
-                                                                                new ClassReloaderManager(loader));
-                }
-
-                ClassReloaderManager classReloaderManager = HotCode.getClassReloaderManager(classReloaderManagerIndex);
-
-                Long classReloaderIndex = classReloaderManager.getIndex(classBeingRedefined);
-
-                URL classFileURL = loader.getResource(className + ".class");
-                FileSystemVersionedClassFile fileSystemVersionedClassFile = new FileSystemVersionedClassFile(
-                                                                                                             new File(
-                                                                                                                      classFileURL.getFile()));
-
-                if (classReloaderIndex == null) {
-                    classReloaderIndex = classReloaderManager.getNextAvailableIndex();
-                    classReloaderManager.putClassReloader(classReloaderIndex, classBeingRedefined,
-                                                          new ClassReloader(classReloaderManagerIndex,
-                                                                            classReloaderIndex, classBeingRedefined,
-                                                                            fileSystemVersionedClassFile));
-                }
-
-                ClassReader cr = new ClassReader(classfileBuffer);
-                ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
-                ClassVisitor cv = new AddFieldsHolderAdapter(cw);
-                cv = new AddClassReloaderAdapter(cv);
-                cv = new ClinitClassAdapter(cv, classReloaderManagerIndex, classReloaderIndex);
-                cv = new BeforeMethodCheckAdapter(cv);
-                cr.accept(cv, 0);
-                byte[] classRedefined = cw.toByteArray();
-                ClassDumper.dump(className, classRedefined);
-                return classRedefined;
+        try {
+            ClassReader cr = new ClassReader(IOUtils.toByteArray(new BufferedInputStream(is)));
+            ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
+            ClassVisitor cv = new ClassLoaderAdapter(cw);
+            cr.accept(cv, 0);
+            byte[] transformedByte = cw.toByteArray();
+            ClassDumper.dump(Type.getInternalName(ClassLoader.class), transformedByte);
+            ClassDefinition classDefinition = new ClassDefinition(ClassLoader.class, transformedByte);
+            try {
+                inst.redefineClasses(classDefinition);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+            } catch (UnmodifiableClassException e) {
+                e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
             }
-        });
+        } catch (IOException e) {
+            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
+        }
+
     }
 }

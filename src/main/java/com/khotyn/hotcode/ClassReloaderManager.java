@@ -16,9 +16,9 @@ public class ClassReloaderManager {
     private AtomicLong               indexGenerator   = new AtomicLong(0);
 
     /**
-     * Map from a class of a class loader to index.
+     * Map from a internal name of a class to index.
      */
-    private Map<Class, Long>         classMap         = new HashMap<Class, Long>();
+    private Map<String, Long>        classMap         = new HashMap<String, Long>();
     /**
      * Map from indexGenerator to class reloader.
      */
@@ -28,8 +28,8 @@ public class ClassReloaderManager {
         this.classLoader = classLoader;
     }
 
-    public Long getIndex(Class klass) {
-        return classMap.get(klass);
+    public Long getIndex(String classInternalName) {
+        return classMap.get(classInternalName);
     }
 
     public Long getNextAvailableIndex() {
@@ -40,8 +40,12 @@ public class ClassReloaderManager {
         return classReloaderMap.get(index);
     }
 
-    public void putClassReloader(Long index, Class klass, ClassReloader classReloader) {
-        classMap.put(klass, index);
+    public void putClassReloader(Long index, String classInternalName, ClassReloader classReloader) {
+        classMap.put(classInternalName, index);
         classReloaderMap.put(index, classReloader);
+    }
+
+    public ClassLoader getClassLoader() {
+        return this.classLoader;
     }
 }
