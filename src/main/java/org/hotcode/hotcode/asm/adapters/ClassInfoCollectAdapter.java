@@ -1,11 +1,10 @@
 package org.hotcode.hotcode.asm.adapters;
 
+import org.hotcode.hotcode.structure.HotCodeClass;
+import org.hotcode.hotcode.structure.HotCodeField;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
-
-import org.hotcode.hotcode.structure.HotCodeClass;
-import org.hotcode.hotcode.structure.HotCodeField;
 
 /**
  * Collect the basic info of a class
@@ -19,6 +18,12 @@ public class ClassInfoCollectAdapter extends ClassVisitor {
     public ClassInfoCollectAdapter(ClassVisitor cv, HotCodeClass hotCodeClass){
         super(Opcodes.ASM4, cv);
         this.hotCodeClass = hotCodeClass;
+    }
+
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        hotCodeClass.setClassName(name.replace('/', '.'));
+        super.visit(version, access, name, signature, superName, interfaces);
     }
 
     @Override

@@ -12,8 +12,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class HotCode {
 
     private static AtomicLong                      indexGenerator          = new AtomicLong(0);
-    private static Map<ClassLoader, Long>          classLoaderIndexMap     = new HashMap<ClassLoader, Long>();
-    private static Map<Long, ClassReloaderManager> classReloaderManagerMap = new HashMap<Long, ClassReloaderManager>();
+    private static Map<ClassLoader, Long>          classLoaderIndexMap     = new HashMap<>();
+    private static Map<Long, ClassReloaderManager> classReloaderManagerMap = new HashMap<>();
 
     public static Long getIndex(ClassLoader classLoader) {
         return classLoaderIndexMap.get(classLoader);

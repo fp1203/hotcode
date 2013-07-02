@@ -1,14 +1,13 @@
 package org.hotcode.hotcode.asm.adapters;
 
 import org.apache.commons.lang.StringUtils;
+import org.hotcode.hotcode.CodeFragment;
+import org.hotcode.hotcode.constants.HotCodeConstant;
+import org.hotcode.hotcode.structure.HotCodeMethod;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
-import org.hotcode.hotcode.CodeFragment;
-import org.hotcode.hotcode.constants.HotCodeConstant;
-import org.hotcode.hotcode.structure.HotCodeMethod;
 
 /**
  * Add "<clinit>" to class if not exist, or else transform the "<clinit>" methods. Add all the code in "<clinit>" to
@@ -41,14 +40,14 @@ public class ClinitClassAdapter extends ClassVisitor {
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         if (StringUtils.equals(name, "<clinit>")) {
             clinitMethod = new HotCodeMethod(access, name, desc, signature, exceptions);
-            MethodVisitor mv = super.visitMethod(access, HotCodeConstant.HOTCODE_CLINIT_METHOD_NAME, desc, signature,
+            MethodVisitor mv = super.visitMethod(access | Opcodes.ACC_PUBLIC,
+                                                 HotCodeConstant.HOTCODE_CLINIT_METHOD_NAME, desc, signature,
                                                  exceptions);
             return new MethodVisitor(Opcodes.ASM4, mv) {
 
                 @Override
                 public void visitCode() {
-                    CodeFragment.clinitFieldInit(mv, classAccess, classInternalName, classReloaderManagerIndex,
-                                                 classReloaderIndex);
+                    CodeFragment.clinitFieldInit(mv, classInternalName, classReloaderManagerIndex, classReloaderIndex);
                     super.visitCode();
                 }
             };
@@ -60,8 +59,9 @@ public class ClinitClassAdapter extends ClassVisitor {
     @Override
     public void visitEnd() {
         if (clinitMethod != null) {
-            MethodVisitor mv = cv.visitMethod(clinitMethod.getAccess(), clinitMethod.getName(), clinitMethod.getDesc(),
-                                              clinitMethod.getSignature(), clinitMethod.getExceptions());
+            MethodVisitor mv = cv.visitMethod(clinitMethod.getAccess() | Opcodes.ACC_PUBLIC, clinitMethod.getName(),
+                                              clinitMethod.getDesc(), clinitMethod.getSignature(),
+                                              clinitMethod.getExceptions());
 
             mv.visitMethodInsn(Opcodes.INVOKESTATIC, classInternalName, HotCodeConstant.HOTCODE_CLINIT_METHOD_NAME,
                                clinitMethod.getDesc());
@@ -73,8 +73,7 @@ public class ClinitClassAdapter extends ClassVisitor {
                                               HotCodeConstant.HOTCODE_CLINIT_METHOD_NAME,
                                               Type.getMethodDescriptor(Type.VOID_TYPE), null, null);
             mv.visitCode();
-            CodeFragment.clinitFieldInit(mv, classAccess, classInternalName, classReloaderManagerIndex,
-                                         classReloaderIndex);
+            CodeFragment.clinitFieldInit(mv, classInternalName, classReloaderManagerIndex, classReloaderIndex);
             mv.visitInsn(Opcodes.RETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();

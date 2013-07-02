@@ -18,11 +18,11 @@ public class ClassReloaderManager {
     /**
      * Map from a internal name of a class to index.
      */
-    private Map<String, Long>        classMap         = new HashMap<String, Long>();
+    private Map<String, Long>        classMap         = new HashMap<>();
     /**
      * Map from indexGenerator to class reloader.
      */
-    private Map<Long, ClassReloader> classReloaderMap = new HashMap<Long, ClassReloader>();
+    private Map<Long, ClassReloader> classReloaderMap = new HashMap<>();
 
     public ClassReloaderManager(ClassLoader classLoader){
         this.classLoader = classLoader;

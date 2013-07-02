@@ -1,5 +1,9 @@
 package org.hotcode.hotcode;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import org.hotcode.hotcode.constants.HotCodeConstant;
 import org.hotcode.hotcode.structure.HotCodeClass;
 
 /**
@@ -11,7 +15,7 @@ public class ClassReloader {
 
     private Long               classReloaderManagerIndex;
     private Long               classIndex;
-    private HotCodeClass originClass;
+    private HotCodeClass       originClass;
     private VersionedClassFile versionedClassFile;
     private ClassLoader        classLoader;
 
@@ -32,11 +36,25 @@ public class ClassReloader {
         return originClass;
     }
 
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
     private boolean reload() {
         byte[] transformedClassFile = ClassTransformer.transform(classReloaderManagerIndex, classIndex,
                                                                  versionedClassFile.reloadAndGetClassFile());
+        ClassDumper.dump(originClass.getClassName().replace('.', '/'), transformedClassFile);
         try {
             ClassRedefiner.redefine(classLoader.loadClass(originClass.getClassName()), transformedClassFile);
+            Class<?> klass = classLoader.loadClass(originClass.getClassName());
+
+            // reinit class.
+            try {
+                Method method = klass.getMethod(HotCodeConstant.HOTCODE_CLINIT_METHOD_NAME);
+                method.invoke(klass);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace(); // TODO
+            }
             return true;
         } catch (ClassNotFoundException e) {
             // TODO

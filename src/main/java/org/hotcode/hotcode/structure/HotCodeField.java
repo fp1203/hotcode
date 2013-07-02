@@ -1,6 +1,10 @@
 package org.hotcode.hotcode.structure;
 
 import org.apache.commons.lang.StringUtils;
+import org.hotcode.hotcode.HotCodeUtil;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 /**
  * A field of a class
@@ -14,6 +18,8 @@ public class HotCodeField {
     private String desc;
 
     public HotCodeField(int access, String name, String desc){
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name) && !Strings.isNullOrEmpty(desc),
+                                    "Name and description can not be blank.");
         this.access = access;
         this.name = name;
         this.desc = desc;
@@ -45,11 +51,11 @@ public class HotCodeField {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof HotCodeField) {
-            HotCodeField hotCodeField = (HotCodeField) o;
-            return StringUtils.equals(hotCodeField.getName(), name) && StringUtils.equals(hotCodeField.getDesc(), desc);
-        } else {
-            return false;
-        }
+        return (o instanceof HotCodeField) && StringUtils.equals(this.toString(), o.toString());
+    }
+
+    @Override
+    public String toString() {
+        return HotCodeUtil.getFieldKey(name, desc);
     }
 }

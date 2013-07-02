@@ -4,11 +4,10 @@ import java.io.File;
 import java.net.URL;
 
 import org.hotcode.hotcode.asm.adapters.*;
+import org.hotcode.hotcode.structure.HotCodeClass;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-
-import org.hotcode.hotcode.structure.HotCodeClass;
 
 /**
  * Transform new load classes.
@@ -17,7 +16,7 @@ import org.hotcode.hotcode.structure.HotCodeClass;
  */
 public class NewLoadClassTransformer {
 
-    private static final String[] SKIP_PKGS = { "java", "javax", "sun", "com/apple/java" };
+    private static final String[] SKIP_PKGS = { "java", "javax", "sun", "com.apple.java" };
 
     public static byte[] transformNewLoadClass(String className, ClassLoader classLoader, byte[] classfileBuffer) {
         for (String SKIP_PKG : SKIP_PKGS) {
@@ -35,7 +34,7 @@ public class NewLoadClassTransformer {
 
         ClassReloaderManager classReloaderManager = HotCode.getClassReloaderManager(classReloaderManagerIndex);
 
-        Long classReloaderIndex = classReloaderManager.getIndex(className);
+        Long classReloaderIndex = classReloaderManager.getIndex(className.replace('.', '/'));
 
         URL classFileURL = classLoader.getResource(className.replace('.', '/') + ".class");
         File classFile = new File(classFileURL.getFile());
@@ -50,7 +49,7 @@ public class NewLoadClassTransformer {
 
         if (classReloaderIndex == null) {
             classReloaderIndex = classReloaderManager.getNextAvailableIndex();
-            classReloaderManager.putClassReloader(classReloaderIndex, className,
+            classReloaderManager.putClassReloader(classReloaderIndex, className.replace('.', '/'),
                                                   new ClassReloader(classReloaderManagerIndex, classReloaderIndex,
                                                                     fileSystemVersionedClassFile, hotCodeClass,
                                                                     classLoader));
@@ -65,7 +64,7 @@ public class NewLoadClassTransformer {
         cv = new ClassInfoCollectAdapter(cv, hotCodeClass);
         cr.accept(cv, 0);
         byte[] classRedefined = cw.toByteArray();
-        ClassDumper.dump(className, classRedefined);
+        ClassDumper.dump(className.replace('.', '/'), classRedefined);
         return classRedefined;
     }
 }

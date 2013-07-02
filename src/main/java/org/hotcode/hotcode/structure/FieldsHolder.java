@@ -9,13 +9,14 @@ import java.util.Map;
  * @author hotcode 2013-06-24 20:22:27
  */
 public class FieldsHolder {
-    private Map<String, Object> fields = new HashMap<String, Object>();
 
-    public Map<String, Object> getFields() {
-        return fields;
+    private Map<String, Object> fields = new HashMap<>();
+
+    public Object getField(String fieldKey) {
+        return fields.get(fieldKey);
     }
 
-    public void setFields(Map<String, Object> fields) {
-        this.fields = fields;
+    public void addField(String fieldKey, Object value) {
+        fields.put(fieldKey, value);
     }
 }

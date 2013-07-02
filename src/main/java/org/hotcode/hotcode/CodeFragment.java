@@ -2,14 +2,13 @@ package org.hotcode.hotcode;
 
 import java.lang.reflect.Modifier;
 
+import org.hotcode.hotcode.constants.HotCodeConstant;
 import org.hotcode.hotcode.structure.FieldsHolder;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
-
-import org.hotcode.hotcode.constants.HotCodeConstant;
 
 /**
  * Code fragment used to add to some place of a class.
@@ -23,8 +22,8 @@ public class CodeFragment {
      * 
      * @param mv
      */
-    public static void clinitFieldInit(MethodVisitor mv, int access, String ownerClassInternalName,
-                                       Long classReloaderManagerIndex, Long classReloaderIndex) {
+    public static void clinitFieldInit(MethodVisitor mv, String ownerClassInternalName, Long classReloaderManagerIndex,
+                                       Long classReloaderIndex) {
         mv.visitTypeInsn(Opcodes.NEW, Type.getInternalName(FieldsHolder.class));
         mv.visitInsn(Opcodes.DUP);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(FieldsHolder.class), "<init>",
@@ -40,15 +39,6 @@ public class CodeFragment {
                            Type.getMethodDescriptor(Type.getType(ClassReloader.class), Type.LONG_TYPE));
         mv.visitFieldInsn(Opcodes.PUTSTATIC, ownerClassInternalName, HotCodeConstant.HOTCODE_CLASS_RELOADER_FIELDS,
                           Type.getDescriptor(ClassReloader.class));
-
-        if (!Modifier.isInterface(access)) {
-            mv.visitTypeInsn(Opcodes.NEW, Type.getInternalName(FieldsHolder.class));
-            mv.visitInsn(Opcodes.DUP);
-            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(FieldsHolder.class), "<init>",
-                               Type.getMethodDescriptor(Type.VOID_TYPE));
-            mv.visitFieldInsn(Opcodes.PUTSTATIC, ownerClassInternalName, HotCodeConstant.HOTCODE_INSTANCE_FIELDS,
-                              Type.getDescriptor(FieldsHolder.class));
-        }
     }
 
     /**
@@ -81,5 +71,20 @@ public class CodeFragment {
                            ownerClassInternalName, methodName, methodDesc);
         ga.returnValue();
         ga.visitLabel(label);
+    }
+
+    public static void initHotCodeInstanceFieldIfNull(MethodVisitor mv, String fieldOwner) {
+        mv.visitFieldInsn(Opcodes.GETFIELD, fieldOwner, HotCodeConstant.HOTCODE_INSTANCE_FIELDS,
+                          Type.getDescriptor(FieldsHolder.class));
+        Label label = new Label();
+        mv.visitJumpInsn(Opcodes.IFNONNULL, label);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitTypeInsn(Opcodes.NEW, Type.getInternalName(FieldsHolder.class));
+        mv.visitInsn(Opcodes.DUP);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(FieldsHolder.class), "<init>",
+                           Type.getMethodDescriptor(Type.VOID_TYPE));
+        mv.visitFieldInsn(Opcodes.PUTFIELD, fieldOwner, HotCodeConstant.HOTCODE_INSTANCE_FIELDS,
+                          Type.getDescriptor(FieldsHolder.class));
+        mv.visitLabel(label);
     }
 }

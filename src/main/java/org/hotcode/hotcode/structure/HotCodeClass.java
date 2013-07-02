@@ -1,21 +1,21 @@
 package org.hotcode.hotcode.structure;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author hotcode.huangt 13-6-26 PM9:26
  */
 public class HotCodeClass {
 
-    private String             className;
-    private List<HotCodeField> fields = new ArrayList<HotCodeField>();
+    private String            className;
+    private Set<HotCodeField> fields = new HashSet<>();
 
-    public List<HotCodeField> getFields() {
+    public Set<HotCodeField> getFields() {
         return fields;
     }
 
-    public void setFields(List<HotCodeField> fields) {
+    public void setFields(Set<HotCodeField> fields) {
         this.fields = fields;
     }
 

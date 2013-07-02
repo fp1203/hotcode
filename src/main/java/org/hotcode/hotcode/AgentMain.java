@@ -8,12 +8,11 @@ import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 
 import org.apache.commons.io.IOUtils;
+import org.hotcode.hotcode.java.lang.ClassLoaderAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
-
-import org.hotcode.hotcode.java.lang.ClassLoaderAdapter;
 
 /**
  * The entry of the HotCode agent.
@@ -35,11 +34,10 @@ public class AgentMain {
             byte[] transformedByte = cw.toByteArray();
             ClassDumper.dump(Type.getInternalName(ClassLoader.class), transformedByte);
             ClassDefinition classDefinition = new ClassDefinition(ClassLoader.class, transformedByte);
+
             try {
                 inst.redefineClasses(classDefinition);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
-            } catch (UnmodifiableClassException e) {
+            } catch (ClassNotFoundException | UnmodifiableClassException e) {
                 e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
             }
         } catch (IOException e) {
