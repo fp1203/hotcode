@@ -8,7 +8,7 @@ FAILED="false"
 mkdir -p ${TARGET_BASE_DIR}
 cd ${CASE_BASE_DIR}
 
-for CASE in `find . -type d -d 1`; do
+for CASE in `find . -depth 1 -type d`; do
     CASE_SOURCE_DIR="${PROJ_DIR}/${CASE_BASE_DIR}/${CASE}"
     CASE_TARGET_DIR="${PROJ_DIR}/${TARGET_BASE_DIR}/${CASE}"
     rm -r ${CASE_TARGET_DIR}
@@ -33,6 +33,4 @@ for CASE in `find . -type d -d 1`; do
     fi
 done
 
-if [ "${FAILED}" == "true" ]; then
-    exit 1
-fi
+test "${FAILED}" == "true" && exit 1
