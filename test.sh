@@ -9,9 +9,12 @@ mkdir -p ${TARGET_BASE_DIR}
 cd ${CASE_BASE_DIR}
 
 for CASE in `find . -type d`; do
+    test "${CASE}" == "." && continue
     CASE_SOURCE_DIR="${PROJ_DIR}/${CASE_BASE_DIR}/${CASE}"
     CASE_TARGET_DIR="${PROJ_DIR}/${TARGET_BASE_DIR}/${CASE}"
-    rm -r ${CASE_TARGET_DIR}
+    if [ -a "${CASE_TARGET_DIR}" ]; then
+        rm -r ${CASE_TARGET_DIR}
+    fi
     mkdir -p ${CASE_TARGET_DIR}
     cp "${CASE_SOURCE_DIR}/A.java" "${CASE_TARGET_DIR}/A.java"
     cd ${CASE_TARGET_DIR}
@@ -34,3 +37,5 @@ for CASE in `find . -type d`; do
 done
 
 test "${FAILED}" == "true" && exit 1
+
+echo $'\e[32m'"All test cases are pass!"$'\e[00m'
