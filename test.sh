@@ -1,11 +1,4 @@
 #!/bin/sh
-function echo_red {
-   echo $'\e[31m'"$1"$'\e[00m'
-}
-
-function echo_green {
-   echo $'\e[32m'"$1"$'\e[00m'
-}
 
 CASE_BASE_DIR="src/test/cases"
 TARGET_BASE_DIR="target/cases"
@@ -33,10 +26,10 @@ for CASE in `find . -type d -d 1`; do
     RESULT=`cat ${CASE_TARGET_DIR}/result`
     IS_SUCCESS=`echo ${RESULT} | grep success`
     if [ -z "${IS_SUCCESS}" ]; then
-        echo_red "${RESULT}"
+        echo $'\e[31m'"${RESULT}"$'\e[00m'
         FAILED="true"
     else
-        echo_green "${RESULT}"
+        echo $'\e[32m'"${RESULT}"$'\e[00m'
     fi
 done
 
