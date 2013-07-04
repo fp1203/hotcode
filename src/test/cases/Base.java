@@ -14,7 +14,7 @@ public class Base {
         Class<?> klass = Thread.currentThread().getContextClassLoader().loadClass("A");
         Method method = klass.getMethod("test");
         String result = (String) method.invoke(klass.newInstance());
-        TimeUnit.SECONDS.sleep(1);
+        TimeUnit.SECONDS.sleep(2);
         String reloadedResult = (String) method.invoke(klass.newInstance());
 
         if (!EXPECTED_RESULT.equals(result) || !EXPECTED_RELOADED_RESULT.equals(reloadedResult)) {
