@@ -22,7 +22,7 @@ for CASE in `find . -type d`; do
     cp "${PROJ_DIR}/${CASE_BASE_DIR}/Base.java" "${CASE_TARGET_DIR}/Base.java"
     cd ${CASE_TARGET_DIR}
     javac Base.java
-    `java -javaagent:${HOTCODE_AGENT_PATH} -noverify Base ${CASE} > result &`
+    java -javaagent:${HOTCODE_AGENT_PATH} -noverify Base ${CASE} &>result &
     cp ${CASE_SOURCE_DIR}/A1.java ${CASE_TARGET_DIR}/A.java
     javac A.java
     sleep 1
