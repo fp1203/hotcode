@@ -59,6 +59,7 @@ public class NewLoadClassTransformer {
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
         ClassVisitor cv = new AddFieldsHolderAdapter(cw);
         cv = new AddClassReloaderAdapter(cv);
+        cv = new FieldReorderAdapter(hotCodeClass, cv);
         cv = new ClinitClassAdapter(cv, classReloaderManagerIndex, classReloaderIndex);
         cv = new BeforeMethodCheckAdapter(cv);
         cv = new ClassInfoCollectAdapter(cv, hotCodeClass);

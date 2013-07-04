@@ -11,7 +11,7 @@ import com.google.common.base.Strings;
  * 
  * @author hotcode.huangt 13-6-26 PM9:22
  */
-public class HotCodeField {
+public class HotCodeField implements java.lang.Comparable {
 
     private int    access;
     private String name;
@@ -57,5 +57,10 @@ public class HotCodeField {
     @Override
     public String toString() {
         return HotCodeUtil.getFieldKey(name, desc);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return this.toString().compareTo(o.toString());
     }
 }
