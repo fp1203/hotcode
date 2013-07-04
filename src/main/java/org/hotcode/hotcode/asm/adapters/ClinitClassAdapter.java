@@ -19,7 +19,6 @@ public class ClinitClassAdapter extends ClassVisitor {
 
     private HotCodeMethod clinitMethod;
     private String        classInternalName;
-    private int           classAccess;
     private Long          classReloaderManagerIndex;
     private Long          classReloaderIndex;
 
@@ -32,7 +31,6 @@ public class ClinitClassAdapter extends ClassVisitor {
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         this.classInternalName = name;
-        this.classAccess = access;
         super.visit(version, access, name, signature, superName, interfaces);
     }
 

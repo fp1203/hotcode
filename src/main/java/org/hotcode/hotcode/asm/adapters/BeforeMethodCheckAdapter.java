@@ -1,11 +1,10 @@
 package org.hotcode.hotcode.asm.adapters;
 
 import org.apache.commons.lang.StringUtils;
+import org.hotcode.hotcode.CodeFragment;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-
-import org.hotcode.hotcode.CodeFragment;
 
 /**
  * @author hotcode.huangt 13-6-25 PM9:48
@@ -29,7 +28,7 @@ public class BeforeMethodCheckAdapter extends ClassVisitor {
                                      String[] exceptions) {
         MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 
-        if (StringUtils.equals(name, "<clinit>") || StringUtils.equals(name, "<init>")) {
+        if (StringUtils.equals(name, "<clinit>")) {
             return mv;
         }
 
