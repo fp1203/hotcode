@@ -10,5 +10,5 @@ HotCode is a JVM agent to enable runtime class reloading. It is currently at a v
 Make sure your code can pass all the test every time you push code. Run the following command to run test cases:
 
 ```
-bash test.sh
+mvn install && bash test.sh
 ```
